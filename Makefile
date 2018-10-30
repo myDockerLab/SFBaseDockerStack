@@ -1,3 +1,7 @@
+ACL = "sudo setfacl -dR -m u:$(whoami):rwX -m u:root:rwX var"
+
+
+
 install:
 	docker-compose exec engine-mao bash -c 'composer install'
 	docker-compose exec engine-mao bash -c 'chmod -R 777 app/cache app/logs'
@@ -34,6 +38,9 @@ init-test:
 	docker-compose exec engine-mao bash -c 'bin/console doctrine:database:drop --force --env=test'
 	docker-compose exec engine-mao bash -c 'bin/console doctrine:database:create --env=test'
 	docker exec -i percona-mao bash -c 'mysql -h $$HOSTNAME -u $$MYSQL_USER -p"$$MYSQL_PASSWORD" ayruu_test' < app/Resources/sql/dump_api_2017-12-18.sql
+
+init-acl:
+	${ACL}
 
 tests:
 	docker-compose exec engine-mao bash -c 'bin/console doctrine:migration:migrate --no-interaction --env=test'
